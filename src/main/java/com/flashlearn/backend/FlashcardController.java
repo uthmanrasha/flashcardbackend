@@ -1,20 +1,37 @@
 package com.flashlearn.backend;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
 public class FlashcardController {
 
+    private final FlashcardRepository flashcardRepository;
+
+    public FlashcardController(FlashcardRepository flashcardRepository) {
+        this.flashcardRepository = flashcardRepository;
+    }
+
     @GetMapping("/flashcards")
     public List<Flashcard> getFlashcards() {
-        Flashcard card1 = new Flashcard(1L, "Informatik", "Was ist Polymorphie?", "Ein Konzept in der objektorientierten Programmierung...", "Hard");
-        Flashcard card2 = new Flashcard(2L, "Biologie", "Was ist die Aufgabe der Mitochondrien?", "Mitochondrien sind die Kraftwerke der Zelle.", "Medium");
+        return flashcardRepository.findAll();
+    }
 
-        return Arrays.asList(card1, card2);
+    @PostMapping("/flashcards")
+    public ResponseEntity<Flashcard> createFlashcard(@RequestBody Flashcard flashcard) {
+        flashcard.setId(null);
+        Flashcard savedFlashcard = flashcardRepository.save(flashcard);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(savedFlashcard);
     }
 }
